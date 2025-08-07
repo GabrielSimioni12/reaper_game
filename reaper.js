@@ -1,68 +1,42 @@
 const criatura = document.getElementById("criatura");
+const pupilas = document.querySelectorAll(".pupila");
 
 let mouseX = 0;
 let mouseY = 0;
 let criaturaX = 0;
 let criaturaY = 0;
-
 let speed = 0.1;
-let tempoDecorrido = 0;
 
-// Captura posição do mouse
 document.addEventListener("mousemove", (e) => {
   mouseX = e.clientX - criatura.offsetWidth / 2;
   mouseY = e.clientY - criatura.offsetHeight / 2;
+
+  // Movimento dos olhos
+  pupilas.forEach((pupila) => {
+    const olho = pupila.parentElement.getBoundingClientRect();
+    const centerX = olho.left + olho.width / 2;
+    const centerY = olho.top + olho.height / 2;
+    const angleX = (e.clientX - centerX) / 10;
+    const angleY = (e.clientY - centerY) / 10;
+    pupila.style.transform = `translate(${angleX}px, ${angleY}px)`;
+  });
 });
 
-// Cria o rastro (fantasminha)
-function criarRastro(x, y) {
-  const rastro = document.createElement("div");
-  rastro.className = "rastro";
-  rastro.style.left = `${x}px`;
-  rastro.style.top = `${y}px`;
-  rastro.style.background = criatura.style.background;
+function animarCriatura() {
+  const dx = mouseX - criaturaX;
+  const dy = mouseY - criaturaY;
+  const distancia = Math.sqrt(dx * dx + dy * dy);
 
-  document.body.appendChild(rastro);
+  criaturaX += dx * speed;
+  criaturaY += dy * speed;
 
-  setTimeout(() => {
-    rastro.style.opacity = 0;
-    setTimeout(() => rastro.remove(), 500);
-  }, 10);
+  // Efeito elástico (estica mais quanto mais rápido)
+  const escalaX = 1 + Math.min(distancia / 150, 0.5); // máx 1.5x
+  const escalaY = 1 - Math.min(distancia / 300, 0.2); // máx 0.8x
+
+  criatura.style.transform = `translate(${criaturaX}px, ${criaturaY}px) scaleX(${escalaX}) scaleY(${escalaY})`;
+
+  requestAnimationFrame(animarCriatura);
 }
 
-// Movimenta a criatura + rastro
-function moverCriatura() {
-  criaturaX += (mouseX - criaturaX) * speed;
-  criaturaY += (mouseY - criaturaY) * speed;
-
-  criatura.style.transform = `translate(${criaturaX}px, ${criaturaY}px)`;
-
-  criarRastro(criaturaX, criaturaY);
-
-  requestAnimationFrame(moverCriatura);
-}
-
-moverCriatura();
-
-// Aumenta velocidade e muda aparência com o tempo
-setInterval(() => {
-  tempoDecorrido += 1;
-
-  if (tempoDecorrido === 5) {
-    speed = 0.15;
-    criatura.style.background = "radial-gradient(circle, #ffcc00, #ff6600)";
-    criatura.style.boxShadow = "0 0 25px #ff990088";
-  }
-
-  if (tempoDecorrido === 10) {
-    speed = 0.25;
-    criatura.style.background = "radial-gradient(circle, #ff0066, #cc0052)";
-    criatura.style.boxShadow = "0 0 30px #ff006688";
-  }
-
-  if (tempoDecorrido === 15) {
-    speed = 0.4;
-    criatura.style.background = "radial-gradient(circle, #9900ff, #330066)";
-    criatura.style.boxShadow = "0 0 40px #9900ffaa";
-  }
-}, 1000);
+animarCriatura();

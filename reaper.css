@@ -35,3 +35,45 @@ body {
   filter: blur(4px);
   transition: opacity 0.4s linear;
 }
+
+
+body {
+  margin: 0;
+  height: 100vh;
+  background: #0e0e0e;
+  overflow: hidden;
+  cursor: none;
+}
+
+#criatura {
+  position: absolute;
+  width: 120px;
+  height: 80px;
+  background: #00ffcc;
+  border-radius: 50% 50% 40% 60%;
+  box-shadow: 0 0 25px #00ffcc88;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 10px;
+  transition: transform 0.2s ease;
+}
+
+.olho {
+  width: 30px;
+  height: 30px;
+  background: white;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pupila {
+  width: 12px;
+  height: 12px;
+  background: black;
+  border-radius: 50%;
+  transition: transform 0.1s;
+}
