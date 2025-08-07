@@ -1,0 +1,22 @@
+/* reaper.css */
+
+body {
+  margin: 0;
+  height: 100vh;
+  background-color: #0e0e0e;
+  overflow: hidden;
+  cursor: none; /* Esconde o cursor padrão para destacar a criatura */
+}
+
+#criatura {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 40px;
+  height: 40px;
+  background: radial-gradient(circle at center, #00ffcc, #007777);
+  border-radius: 50%;
+  pointer-events: none; /* Faz com que não interfira com cliques */
+  box-shadow: 0 0 20px #00ffcc88;
+  transition: transform 0.2s ease;
+}
