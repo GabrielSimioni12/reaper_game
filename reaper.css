@@ -1,22 +1,37 @@
-/* reaper.css */
-
+/* Fundo escuro e sem cursor */
 body {
   margin: 0;
   height: 100vh;
   background-color: #0e0e0e;
   overflow: hidden;
-  cursor: none; /* Esconde o cursor padrão para destacar a criatura */
+  cursor: none;
 }
 
+/* A criatura que segue o mouse */
 #criatura {
   position: absolute;
   top: 0;
   left: 0;
   width: 40px;
   height: 40px;
-  background: radial-gradient(circle at center, #00ffcc, #007777);
+  background: radial-gradient(circle, #00ffcc, #007777);
   border-radius: 50%;
-  pointer-events: none; /* Faz com que não interfira com cliques */
+  pointer-events: none;
   box-shadow: 0 0 20px #00ffcc88;
   transition: transform 0.2s ease;
+  z-index: 10;
+}
+
+/* Fantasminha (rastro) da criatura */
+.rastro {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: inherit;
+  opacity: 0.4;
+  pointer-events: none;
+  z-index: -1;
+  filter: blur(4px);
+  transition: opacity 0.4s linear;
 }
