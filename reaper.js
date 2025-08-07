@@ -1,25 +1,16 @@
-const criatura = document.getElementById("criatura");
-const pupilas = document.querySelectorAll(".pupila");
+const criaturaGrupo = document.getElementById("criaturaGrupo");
+const pupilaEsq = document.getElementById("pupilaEsq");
+const pupilaDir = document.getElementById("pupilaDir");
 
 let mouseX = 0;
 let mouseY = 0;
-let criaturaX = 0;
-let criaturaY = 0;
+let criaturaX = 75; // centro inicial
+let criaturaY = 75;
 let speed = 0.1;
 
 document.addEventListener("mousemove", (e) => {
-  mouseX = e.clientX - criatura.offsetWidth / 2;
-  mouseY = e.clientY - criatura.offsetHeight / 2;
-
-  // Movimento dos olhos
-  pupilas.forEach((pupila) => {
-    const olho = pupila.parentElement.getBoundingClientRect();
-    const centerX = olho.left + olho.width / 2;
-    const centerY = olho.top + olho.height / 2;
-    const angleX = (e.clientX - centerX) / 10;
-    const angleY = (e.clientY - centerY) / 10;
-    pupila.style.transform = `translate(${angleX}px, ${angleY}px)`;
-  });
+  mouseX = e.clientX;
+  mouseY = e.clientY;
 });
 
 function animarCriatura() {
@@ -30,13 +21,29 @@ function animarCriatura() {
   criaturaX += dx * speed;
   criaturaY += dy * speed;
 
-  // Efeito elástico (estica mais quanto mais rápido)
-  const escalaX = 1 + Math.min(distancia / 150, 0.5); // máx 1.5x
-  const escalaY = 1 - Math.min(distancia / 300, 0.2); // máx 0.8x
+  const escalaX = 1 + Math.min(distancia / 150, 0.5);
+  const escalaY = 1 - Math.min(distancia / 300, 0.2);
 
-  criatura.style.transform = `translate(${criaturaX}px, ${criaturaY}px) scaleX(${escalaX}) scaleY(${escalaY})`;
+  // Move e estica o SVG com transform
+  criaturaGrupo.setAttribute(
+    "transform",
+    `translate(${criaturaX - 75}, ${criaturaY - 75}) scale(${escalaX}, ${escalaY}`);
+
+
+  // Pupilas seguem o cursor com leve movimento
+  moverPupila(pupilaEsq, 55, 70, 5);
+  moverPupila(pupilaDir, 95, 70, 5);
 
   requestAnimationFrame(animarCriatura);
+}
+
+function moverPupila(pupila, cx, cy, limite) {
+  const angX = ((mouseX / window.innerWidth) - 0.5) * 2;
+  const angY = ((mouseY / window.innerHeight) - 0.5) * 2;
+  const offsetX = angX * limite;
+  const offsetY = angY * limite;
+  pupila.setAttribute("cx", cx + offsetX);
+  pupila.setAttribute("cy", cy + offsetY);
 }
 
 animarCriatura();

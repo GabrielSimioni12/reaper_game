@@ -8,8 +8,24 @@
 </head>
 <body>
 
-  <!-- Criatura que vai seguir o mouse do usuario -->
-  <div id="criatura"></div>
+ <svg id="criatura" width="150" height="150" viewBox="0 0 150 150">
+  <g id="criaturaGrupo">
+    <path
+      d="M75,20 
+         C95,20 130,45 120,75 
+         C110,105 90,130 75,130 
+         C60,130 40,105 30,75 
+         C20,45 55,20 75,20"
+      fill="#ff6666"
+      stroke="#cc3333"
+      stroke-width="2"
+    />
+    <circle class="olho" cx="55" cy="70" r="12" fill="white" />
+    <circle class="pupila" id="pupilaEsq" cx="55" cy="70" r="5" fill="black" />
+    <circle class="olho" cx="95" cy="70" r="12" fill="white" />
+    <circle class="pupila" id="pupilaDir" cx="95" cy="70" r="5" fill="black" />
+  </g>
+</svg>
 
   <script src="reaper.js"></script>
 </body>
