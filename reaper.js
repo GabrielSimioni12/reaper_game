@@ -28,21 +28,23 @@ function setup() {
 function draw() {
   background(0); // Fundo preto a cada frame
 
-  // O primeiro nó (a cabeça) segue o mouse
-  nodes[0].x = mouseX;
-  nodes[0].y = mouseY;
+  // --- O PRIMEIRO NÓ AGORA SE MOVE SUAVEMENTE ---
+  let followSpeed = 0.1; // Ajuste este valor para controlar a velocidade de "acompanhamento"
+  nodes[0].x += (mouseX - nodes[0].x) * followSpeed;
+  nodes[0].y += (mouseY - nodes[0].y) * followSpeed;
   
   // Parâmetros para os movimentos
   let tailSpeed = 0.08; 
   let tailAmplitude = 0.6;
   let bodyWobbleSpeed = 0.05;
-  let bodyWobbleAmplitude = 0.3; // Amplitude do balanço do corpo
+  let bodyWobbleAmplitude = 0.3;
 
   // Loop para os outros nós seguirem o anterior
   for (let i = 1; i < nodes.length; i++) {
     let prevNode = nodes[i - 1];
     let currentNode = nodes[i];
     
+    // Calcula a distância para manter a lógica de "esticar"
     let dist = p5.Vector.dist(
       createVector(prevNode.x, prevNode.y),
       createVector(currentNode.x, currentNode.y)
@@ -52,9 +54,8 @@ function draw() {
 
     let finalAngle = angle;
     
-    // Adiciona o balanço no corpo (dos nós 1 até o começo da cauda)
-    let tailStart = Math.floor(nodes.length * 0.7); // Cauda começando um pouco antes
-    
+    // Adiciona o balanço no corpo
+    let tailStart = Math.floor(nodes.length * 0.7);
     if (i < tailStart) {
       let bodyOffset = sin(frameCount * bodyWobbleSpeed + i * 0.5) * bodyWobbleAmplitude;
       finalAngle += bodyOffset;
@@ -67,19 +68,23 @@ function draw() {
       finalAngle += waveOffset;
     }
     
-    currentNode.x = prevNode.x - cos(finalAngle) * prevNode.size;
-    currentNode.y = prevNode.y - sin(finalAngle) * prevNode.size;
+    // --- CÓDIGO CORRIGIDO PARA POSICIONAR OS NÓS SUAVEMENTE ---
+    let targetX = prevNode.x - cos(finalAngle) * currentNode.size;
+    let targetY = prevNode.y - sin(finalAngle) * currentNode.size;
+
+    currentNode.x += (targetX - currentNode.x) * followSpeed;
+    currentNode.y += (targetY - currentNode.y) * followSpeed;
   }
   
-  // --- O CÓDIGO DE DESENHO ABAIXO FOI REFINADO ---
+  // --- O CÓDIGO DE DESENHO ABAIXO NÃO MUDOU ---
   for (let i = 0; i < nodes.length; i++) {
     let currentNode = nodes[i];
     
     let nodeSize = 0;
     if (i < nodes.length * 0.4) {
-      nodeSize = map(i, 0, nodes.length * 0.4, 5, 40); // Aumenta o tamanho do tórax
+      nodeSize = map(i, 0, nodes.length * 0.4, 5, 40);
     } else {
-      nodeSize = map(i, nodes.length * 0.4, nodes.length - 1, 40, 2); // Diminui o corpo e a cauda
+      nodeSize = map(i, nodes.length * 0.4, nodes.length - 1, 40, 2);
     }
     
     let lineWeight = map(nodeSize, 2, 40, 1, 4);
@@ -92,7 +97,6 @@ function draw() {
       strokeWeight(lineWeight);
       line(prevNode.x, prevNode.y, currentNode.x, currentNode.y);
       
-      // Desenha as patas apenas na parte do tórax
       let legStart = Math.floor(nodes.length * 0.1);
       let legEnd = Math.floor(nodes.length * 0.4);
       if (i > legStart && i < legEnd) {
