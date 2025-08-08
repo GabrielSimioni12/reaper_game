@@ -31,89 +31,105 @@ function draw() {
   // O primeiro nó (a cabeça) segue o mouse
   nodes[0].x = mouseX;
   nodes[0].y = mouseY;
+  
+  // Parâmetros para os movimentos
+  let tailSpeed = 0.08; 
+  let tailAmplitude = 0.6;
+  let bodyWobbleSpeed = 0.05;
+  let bodyWobbleAmplitude = 0.3; // Amplitude do balanço do corpo
 
   // Loop para os outros nós seguirem o anterior
   for (let i = 1; i < nodes.length; i++) {
     let prevNode = nodes[i - 1];
     let currentNode = nodes[i];
     
-    // Calcula a distância entre o nó atual e o anterior
     let dist = p5.Vector.dist(
       createVector(prevNode.x, prevNode.y),
       createVector(currentNode.x, currentNode.y)
     );
 
-    // Calcula o ângulo entre o nó atual e o anterior
     let angle = atan2(prevNode.y - currentNode.y, prevNode.x - currentNode.x);
 
-    // Reposiciona o nó atual para ficar a uma distância fixa do anterior
-    // A distância agora é baseada no tamanho do nó anterior
-    currentNode.x = prevNode.x - cos(angle) * prevNode.size;
-    currentNode.y = prevNode.y - sin(angle) * prevNode.size;
+    let finalAngle = angle;
+    
+    // Adiciona o balanço no corpo (dos nós 1 até o começo da cauda)
+    let tailStart = Math.floor(nodes.length * 0.7); // Cauda começando um pouco antes
+    
+    if (i < tailStart) {
+      let bodyOffset = sin(frameCount * bodyWobbleSpeed + i * 0.5) * bodyWobbleAmplitude;
+      finalAngle += bodyOffset;
+    } 
+    
+    // Adiciona o movimento de onda apenas para a cauda
+    if (i >= tailStart) {
+      let amplitudeDecrease = map(i, tailStart, nodes.length - 1, 1, 0);
+      let waveOffset = sin(frameCount * tailSpeed + i * 0.5) * tailAmplitude * amplitudeDecrease;
+      finalAngle += waveOffset;
+    }
+    
+    currentNode.x = prevNode.x - cos(finalAngle) * prevNode.size;
+    currentNode.y = prevNode.y - sin(finalAngle) * prevNode.size;
   }
-
-  // --- NOVO CÓDIGO DE DESENHO ---
+  
+  // --- O CÓDIGO DE DESENHO ABAIXO FOI REFINADO ---
   for (let i = 0; i < nodes.length; i++) {
     let currentNode = nodes[i];
     
-    // Mapeia o tamanho para criar uma perspectiva (cabeça maior, cauda menor)
-    // O nó 0 (cabeça) tem o maior tamanho, o último nó tem o menor
-    let nodeSize = map(i, 0, nodes.length - 1, 15, 2);
-    
-    // Desenha as linhas entre os nós
-    if (i > 0) {
-      let prevNode = nodes[i - 1];
-      // A espessura da linha também diminui em direção à cauda
-      let lineWeight = map(i, 0, nodes.length - 1, 3, 1);
-      strokeWeight(lineWeight); // Define a espessura da linha
-      stroke(255); // Cor branca para a linha
-      line(prevNode.x, prevNode.y, currentNode.x, currentNode.y);
+    let nodeSize = 0;
+    if (i < nodes.length * 0.4) {
+      nodeSize = map(i, 0, nodes.length * 0.4, 5, 40); // Aumenta o tamanho do tórax
+    } else {
+      nodeSize = map(i, nodes.length * 0.4, nodes.length - 1, 40, 2); // Diminui o corpo e a cauda
     }
     
-    // Desenha os nós como círculos
-    fill(255); // Cor branca para o círculo
+    let lineWeight = map(nodeSize, 2, 40, 1, 4);
+
+    if (i > 0) {
+      let prevNode = nodes[i - 1];
+      let angle = atan2(prevNode.y - currentNode.y, prevNode.x - currentNode.x);
+
+      stroke(255);
+      strokeWeight(lineWeight);
+      line(prevNode.x, prevNode.y, currentNode.x, currentNode.y);
+      
+      // Desenha as patas apenas na parte do tórax
+      let legStart = Math.floor(nodes.length * 0.1);
+      let legEnd = Math.floor(nodes.length * 0.4);
+      if (i > legStart && i < legEnd) {
+        let legLength = map(i, legStart, legEnd, 20, 40);
+        let footLength = 7;
+        let legWeight = 2;
+        
+        let legSpeed = 0.1;
+        let legAmplitude = 0.5;
+
+        let legOscillation = sin(frameCount * legSpeed + i);
+        let currentLegAngle = angle + (legOscillation * legAmplitude);
+        
+        stroke(255);
+        strokeWeight(legWeight);
+        
+        let legAngleRight = currentLegAngle + HALF_PI;
+        let legEndPointX_R = currentNode.x + cos(legAngleRight) * legLength;
+        let legEndPointY_R = currentNode.y + sin(legAngleRight) * legLength;
+        line(currentNode.x, currentNode.y, legEndPointX_R, legEndPointY_R);
+        line(legEndPointX_R, legEndPointY_R, legEndPointX_R + cos(legAngleRight + HALF_PI) * footLength, legEndPointY_R + sin(legAngleRight + HALF_PI) * footLength);
+        
+        let legAngleLeft = angle - (legOscillation * legAmplitude) - HALF_PI;
+        let legEndPointX_L = currentNode.x + cos(legAngleLeft) * legLength;
+        let legEndPointY_L = currentNode.y + sin(legAngleLeft) * legLength;
+        line(currentNode.x, currentNode.y, legEndPointX_L, legEndPointY_L);
+        line(legEndPointX_L, legEndPointY_L, legEndPointX_L + cos(legAngleLeft - HALF_PI) * footLength, legEndPointY_L + sin(legAngleLeft - HALF_PI) * footLength);
+      }
+    }
+    
+    fill(255);
     noStroke();
-    ellipse(currentNode.x, currentNode.y, nodeSize, nodeSize);
+    
+    if (i === 0) {
+      ellipse(currentNode.x, currentNode.y, nodeSize * 1.5, nodeSize * 1.5);
+    } else {
+      ellipse(currentNode.x, currentNode.y, nodeSize, nodeSize);
+    }
   }
 }
-  // O primeiro nó (a cabeça) segue o mouse
-  nodes[0].x = mouseX;
-  nodes[0].y = mouseY;
-
-  // Loop para os outros nós seguirem o anterior
-  for (let i = 1; i < nodes.length; i++) {
-    let prevNode = nodes[i - 1];
-    let currentNode = nodes[i];
-    
-    // Calcula a distância entre o nó atual e o anterior
-    let dist = p5.Vector.dist(
-      createVector(prevNode.x, prevNode.y),
-      createVector(currentNode.x, currentNode.y)
-    );
-
-    // Calcula o ângulo entre o nó atual e o anterior
-    let angle = atan2(prevNode.y - currentNode.y, prevNode.x - currentNode.x);
-
-    // Reposiciona o nó atual para ficar a uma distância fixa do anterior
-    currentNode.x = prevNode.x - cos(angle) * prevNode.size;
-    currentNode.y = prevNode.y - sin(angle) * prevNode.size;
-  }
-
-  // Desenha os nós e as linhas para formar o esqueleto
-  for (let i = 0; i < nodes.length; i++) {
-    // Desenha as linhas entre os nós
-    if (i > 0) {
-      let prevNode = nodes[i - 1];
-      let currentNode = nodes[i];
-      stroke(255); // Cor branca para a linha
-      line(prevNode.x, prevNode.y, currentNode.x, currentNode.y);
-    }
-
-    // Desenha os nós como círculos
-    fill(255); // Cor branca para o círculo
-    noStroke();
-    ellipse(nodes[i].x, nodes[i].y, nodes[i].size, nodes[i].size);
-  }
-
-
-
