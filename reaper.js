@@ -1,49 +1,119 @@
-const criaturaGrupo = document.getElementById("criaturaGrupo");
-const pupilaEsq = document.getElementById("pupilaEsq");
-const pupilaDir = document.getElementById("pupilaDir");
-
-let mouseX = 0;
-let mouseY = 0;
-let criaturaX = 75; // centro inicial
-let criaturaY = 75;
-let speed = 0.1;
-
-document.addEventListener("mousemove", (e) => {
-  mouseX = e.clientX;
-  mouseY = e.clientY;
-});
-
-function animarCriatura() {
-  const dx = mouseX - criaturaX;
-  const dy = mouseY - criaturaY;
-  const distancia = Math.sqrt(dx * dx + dy * dy);
-
-  criaturaX += dx * speed;
-  criaturaY += dy * speed;
-
-  const escalaX = 1 + Math.min(distancia / 150, 0.5);
-  const escalaY = 1 - Math.min(distancia / 300, 0.2);
-
-  // Move e estica o SVG com transform
-  criaturaGrupo.setAttribute(
-    "transform",
-    `translate(${criaturaX - 75}, ${criaturaY - 75}) scale(${escalaX}, ${escalaY}`);
-
-
-  // Pupilas seguem o cursor com leve movimento
-  moverPupila(pupilaEsq, 55, 70, 5);
-  moverPupila(pupilaDir, 95, 70, 5);
-
-  requestAnimationFrame(animarCriatura);
+class Node {
+  constructor(x, y, size) {
+    this.x = x;
+    this.y = y;
+    this.size = size;
+  }
 }
 
-function moverPupila(pupila, cx, cy, limite) {
-  const angX = ((mouseX / window.innerWidth) - 0.5) * 2;
-  const angY = ((mouseY / window.innerHeight) - 0.5) * 2;
-  const offsetX = angX * limite;
-  const offsetY = angY * limite;
-  pupila.setAttribute("cx", cx + offsetX);
-  pupila.setAttribute("cy", cy + offsetY);
+
+
+
+
+let nodes = [];
+let numNodes = 15; // Número de nós do corpo do lagarto
+
+function setup() {
+  createCanvas(800, 600); // Cria a tela de desenho
+  
+  // Cria os nós do lagarto e os armazena no array
+  for (let i = 0; i < numNodes; i++) {
+    // Inicialmente, todos os nós ficam no centro da tela
+    nodes.push(new Node(width / 2, height / 2, 10)); 
+  }
 }
 
-animarCriatura();
+
+
+function draw() {
+  background(0); // Fundo preto a cada frame
+
+  // O primeiro nó (a cabeça) segue o mouse
+  nodes[0].x = mouseX;
+  nodes[0].y = mouseY;
+
+  // Loop para os outros nós seguirem o anterior
+  for (let i = 1; i < nodes.length; i++) {
+    let prevNode = nodes[i - 1];
+    let currentNode = nodes[i];
+    
+    // Calcula a distância entre o nó atual e o anterior
+    let dist = p5.Vector.dist(
+      createVector(prevNode.x, prevNode.y),
+      createVector(currentNode.x, currentNode.y)
+    );
+
+    // Calcula o ângulo entre o nó atual e o anterior
+    let angle = atan2(prevNode.y - currentNode.y, prevNode.x - currentNode.x);
+
+    // Reposiciona o nó atual para ficar a uma distância fixa do anterior
+    // A distância agora é baseada no tamanho do nó anterior
+    currentNode.x = prevNode.x - cos(angle) * prevNode.size;
+    currentNode.y = prevNode.y - sin(angle) * prevNode.size;
+  }
+
+  // --- NOVO CÓDIGO DE DESENHO ---
+  for (let i = 0; i < nodes.length; i++) {
+    let currentNode = nodes[i];
+    
+    // Mapeia o tamanho para criar uma perspectiva (cabeça maior, cauda menor)
+    // O nó 0 (cabeça) tem o maior tamanho, o último nó tem o menor
+    let nodeSize = map(i, 0, nodes.length - 1, 15, 2);
+    
+    // Desenha as linhas entre os nós
+    if (i > 0) {
+      let prevNode = nodes[i - 1];
+      // A espessura da linha também diminui em direção à cauda
+      let lineWeight = map(i, 0, nodes.length - 1, 3, 1);
+      strokeWeight(lineWeight); // Define a espessura da linha
+      stroke(255); // Cor branca para a linha
+      line(prevNode.x, prevNode.y, currentNode.x, currentNode.y);
+    }
+    
+    // Desenha os nós como círculos
+    fill(255); // Cor branca para o círculo
+    noStroke();
+    ellipse(currentNode.x, currentNode.y, nodeSize, nodeSize);
+  }
+}
+  // O primeiro nó (a cabeça) segue o mouse
+  nodes[0].x = mouseX;
+  nodes[0].y = mouseY;
+
+  // Loop para os outros nós seguirem o anterior
+  for (let i = 1; i < nodes.length; i++) {
+    let prevNode = nodes[i - 1];
+    let currentNode = nodes[i];
+    
+    // Calcula a distância entre o nó atual e o anterior
+    let dist = p5.Vector.dist(
+      createVector(prevNode.x, prevNode.y),
+      createVector(currentNode.x, currentNode.y)
+    );
+
+    // Calcula o ângulo entre o nó atual e o anterior
+    let angle = atan2(prevNode.y - currentNode.y, prevNode.x - currentNode.x);
+
+    // Reposiciona o nó atual para ficar a uma distância fixa do anterior
+    currentNode.x = prevNode.x - cos(angle) * prevNode.size;
+    currentNode.y = prevNode.y - sin(angle) * prevNode.size;
+  }
+
+  // Desenha os nós e as linhas para formar o esqueleto
+  for (let i = 0; i < nodes.length; i++) {
+    // Desenha as linhas entre os nós
+    if (i > 0) {
+      let prevNode = nodes[i - 1];
+      let currentNode = nodes[i];
+      stroke(255); // Cor branca para a linha
+      line(prevNode.x, prevNode.y, currentNode.x, currentNode.y);
+    }
+
+    // Desenha os nós como círculos
+    fill(255); // Cor branca para o círculo
+    noStroke();
+    ellipse(nodes[i].x, nodes[i].y, nodes[i].size, nodes[i].size);
+  }
+
+
+

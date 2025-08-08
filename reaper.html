@@ -1,32 +1,25 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Criatura Seguidora</title>
-  <link rel="stylesheet" href="reaper.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lagarto Esquelético</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #000;
+        }
+        canvas {
+            display: block;
+        }
+    </style>
 </head>
 <body>
-
- <svg id="criatura" width="150" height="150" viewBox="0 0 150 150">
-  <g id="criaturaGrupo">
-    <path
-      d="M75,20 
-         C95,20 130,45 120,75 
-         C110,105 90,130 75,130 
-         C60,130 40,105 30,75 
-         C20,45 55,20 75,20"
-      fill="#ff6666"
-      stroke="#cc3333"
-      stroke-width="2"
-    />
-    <circle class="olho" cx="55" cy="70" r="12" fill="white" />
-    <circle class="pupila" id="pupilaEsq" cx="55" cy="70" r="5" fill="black" />
-    <circle class="olho" cx="95" cy="70" r="12" fill="white" />
-    <circle class="pupila" id="pupilaDir" cx="95" cy="70" r="5" fill="black" />
-  </g>
-</svg>
-
-  <script src="reaper.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.9.2/lib/p5.js"></script>
+    <script src="reaper.js"></script>
 </body>
 </html>
